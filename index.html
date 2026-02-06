@@ -4,130 +4,148 @@
 <meta charset="UTF-8">
 <title>REDSHIFT</title>
 
-<!-- SITE ICON -->
 <link rel="icon" href="https://cdn.discordapp.com/attachments/1469270157905105090/1469271202752233554/65AB0736-09C0-4CB6-8C86-4257C2DA24F6.png">
-
-<!-- FONT -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  color: #fff;
-  font-family: 'Orbitron', monospace;
-  height: 100%;
-  overflow: hidden;
+html,body{
+  margin:0;
+  background:black;
+  color:#00ff9c;
+  font-family:'Orbitron',monospace;
+  height:100%;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  text-align: center;
+.terminal{
+  padding:30px;
+  font-size:14px;
+  white-space:pre-wrap;
 }
 
-.glitch {
-  font-size: 72px;
-  position: relative;
-  letter-spacing: 4px;
+input{
+  background:black;
+  border:1px solid #00ff9c;
+  color:#00ff9c;
+  padding:8px;
+  font-family:inherit;
 }
 
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  overflow: hidden;
-}
-
-.glitch::before {
-  color: red;
-  z-index: -1;
-  animation: glitch1 1.4s infinite;
-}
-
-.glitch::after {
-  color: cyan;
-  z-index: -2;
-  animation: glitch2 1s infinite;
-}
-
-@keyframes glitch1 {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(2px, -2px); }
-  60% { transform: translate(-3px, 1px); }
-  80% { transform: translate(3px, -1px); }
-  100% { transform: translate(0); }
-}
-
-@keyframes glitch2 {
-  0% { transform: translate(0); }
-  25% { transform: translate(2px, -2px); }
-  50% { transform: translate(-2px, 2px); }
-  75% { transform: translate(1px, -1px); }
-  100% { transform: translate(0); }
-}
-
-.sub {
-  opacity: 0.6;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-button {
-  margin-top: 30px;
-  padding: 14px 24px;
-  background: black;
-  border: 1px solid red;
-  color: white;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-button:hover {
-  background: red;
-}
-
-pre {
-  margin-top: 20px;
-  font-size: 12px;
-  opacity: 0.75;
-  user-select: all;
+button{
+  background:black;
+  border:1px solid red;
+  color:white;
+  padding:8px 14px;
+  cursor:pointer;
+  margin-left:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <div class="glitch" data-text="REDSHIFT">REDSHIFT</div>
-  <div class="sub">unstable • silent • powerful</div>
+<div class="terminal" id="term"></div>
 
-  <button onclick="copy()">COPY LOADER</button>
-
-  <pre id="loader">
-loadstring(game:HttpGet("https://YOUR-GITHUB-USERNAME.github.io/REPO/script.lua"))()
-  </pre>
+<div style="padding:30px">
+  KEY:
+  <input id="key">
+  <button onclick="generate()">GENERATE LOADER</button>
 </div>
 
 <script>
-function copy() {
-  navigator.clipboard.writeText(
-    'loadstring(game:HttpGet("https://YOUR-GITHUB-USERNAME.github.io/REPO/script.lua"))()'
-  )
+// =======================
+// CONFIG
+// =======================
+const KEY_LIST_URL =
+"https://raw.githubusercontent.com/YOURUSER/YOURREPO/main/keys.txt";
+
+// =======================
+// FAKE TERMINAL
+// =======================
+const term = document.getElementById("term");
+const lines = [
+"[ Redshift OS v1.7 ]",
+"Initializing kernel...",
+"Mounting memory...",
+"Bypassing sanity checks...",
+"Awaiting authorization..."
+];
+
+let i = 0;
+function typeLine(text, cb){
+  let j = 0;
+  let interval = setInterval(()=>{
+    term.innerHTML += text[j++] || "";
+    if(j > text.length){
+      clearInterval(interval);
+      term.innerHTML += "\n";
+      cb && cb();
+    }
+  }, 25);
 }
 
-// micro screen glitch
-setInterval(() => {
-  document.body.style.opacity = Math.random() > 0.98 ? "0.85" : "1";
-}, 120);
+(function next(){
+  if(i < lines.length){
+    typeLine(lines[i++], next);
+  }
+})();
+
+// =======================
+// ROBLOX SCRIPT (INLINE)
+// =======================
+const EMBEDDED_LUA = `
+if not game:IsLoaded() then
+  game.Loaded:Wait()
+end
+
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+
+pcall(function()
+  game.StarterGui:SetCore("SendNotification", {
+    Title = "REDSHIFT",
+    Text = "Authorized",
+    Duration = 3
+  })
+end)
+
+print("REDSHIFT injected:", LP.Name)
+`;
+
+// =======================
+// LOADER GENERATOR
+// =======================
+async function generate(){
+  const key = document.getElementById("key").value.trim();
+  term.innerHTML += "\\nVerifying key...\\n";
+
+  const res = await fetch(KEY_LIST_URL);
+  const text = await res.text();
+  if(!text.split("\\n").includes(key)){
+    term.innerHTML += "ACCESS DENIED\\n";
+    return;
+  }
+
+  term.innerHTML += "KEY ACCEPTED\\n";
+  term.innerHTML += "Generating loader...\\n";
+
+  const loader = `
+-- REDSHIFT LOADER
+local HttpService = game:GetService("HttpService")
+local hwid = HttpService:GenerateGUID(false)
+
+local valid = game:HttpGet("${KEY_LIST_URL}")
+if not string.find(valid, "${key}") then
+  return
+end
+
+loadstring([[
+${EMBEDDED_LUA}
+]])()
+`;
+
+  navigator.clipboard.writeText(loader);
+  term.innerHTML += "LOADER COPIED TO CLIPBOARD\\n";
+}
 </script>
 
 </body>
