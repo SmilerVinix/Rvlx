@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>REDSHIFT</title>
+
+<!-- SITE ICON -->
+<link rel="icon" href="https://cdn.discordapp.com/attachments/1469270157905105090/1469271202752233554/65AB0736-09C0-4CB6-8C86-4257C2DA24F6.png">
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  height: 100%;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.glitch {
+  font-size: 72px;
+  position: relative;
+  letter-spacing: 4px;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.glitch::before {
+  color: red;
+  z-index: -1;
+  animation: glitch1 1.4s infinite;
+}
+
+.glitch::after {
+  color: cyan;
+  z-index: -2;
+  animation: glitch2 1s infinite;
+}
+
+@keyframes glitch1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-3px, 1px); }
+  80% { transform: translate(3px, -1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch2 {
+  0% { transform: translate(0); }
+  25% { transform: translate(2px, -2px); }
+  50% { transform: translate(-2px, 2px); }
+  75% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+.sub {
+  opacity: 0.6;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+button {
+  margin-top: 30px;
+  padding: 14px 24px;
+  background: black;
+  border: 1px solid red;
+  color: white;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  background: red;
+}
+
+pre {
+  margin-top: 20px;
+  font-size: 12px;
+  opacity: 0.75;
+  user-select: all;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="glitch" data-text="REDSHIFT">REDSHIFT</div>
+  <div class="sub">unstable • silent • powerful</div>
+
+  <button onclick="copy()">COPY LOADER</button>
+
+  <pre id="loader">
+loadstring(game:HttpGet("https://YOUR-GITHUB-USERNAME.github.io/REPO/script.lua"))()
+  </pre>
+</div>
+
+<script>
+function copy() {
+  navigator.clipboard.writeText(
+    'loadstring(game:HttpGet("https://YOUR-GITHUB-USERNAME.github.io/REPO/script.lua"))()'
+  )
+}
+
+// micro screen glitch
+setInterval(() => {
+  document.body.style.opacity = Math.random() > 0.98 ? "0.85" : "1";
+}, 120);
+</script>
+
+</body>
+</html>
