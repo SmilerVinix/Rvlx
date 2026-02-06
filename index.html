@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>REDSHIFT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="icon" href="https://cdn.discordapp.com/attachments/1469270157905105090/1469271202752233554/65AB0736-09C0-4CB6-8C86-4257C2DA24F6.png">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
@@ -16,83 +17,91 @@ html,body{
   height:100%;
 }
 
+.wrapper{
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+
 .terminal{
-  padding:30px;
+  flex:1;
+  padding:20px;
   font-size:14px;
   white-space:pre-wrap;
 }
 
-input{
-  background:black;
-  border:1px solid #00ff9c;
-  color:#00ff9c;
-  padding:8px;
-  font-family:inherit;
+.controls{
+  padding:20px;
+  border-top:1px solid #111;
 }
 
 button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
   background:black;
   border:1px solid red;
   color:white;
-  padding:8px 14px;
+  font-size:14px;
+  font-family:inherit;
   cursor:pointer;
-  margin-left:10px;
+}
+
+button:active{
+  background:red;
+}
+
+@media (min-width: 700px){
+  .terminal{ font-size:15px; padding:30px; }
+  button{ width:auto; padding:12px 20px; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="terminal" id="term"></div>
+<div class="wrapper">
+  <div class="terminal" id="term"></div>
 
-<div style="padding:30px">
-  KEY:
-  <input id="key">
-  <button onclick="generate()">GENERATE LOADER</button>
+  <div class="controls">
+    <button onclick="generate()">GENERATE KEY + LOADER</button>
+  </div>
 </div>
 
 <script>
 // =======================
-// CONFIG
-// =======================
-const KEY_LIST_URL =
-"https://raw.githubusercontent.com/YOURUSER/YOURREPO/main/keys.txt";
-
-// =======================
-// FAKE TERMINAL
+// TERMINAL TYPE EFFECT
 // =======================
 const term = document.getElementById("term");
-const lines = [
-"[ Redshift OS v1.7 ]",
-"Initializing kernel...",
-"Mounting memory...",
-"Bypassing sanity checks...",
-"Awaiting authorization..."
+const boot = [
+"[ Redshift OS ]",
+"Boot sequence start...",
+"Initializing memory...",
+"Injecting entropy...",
+"System online.",
+""
 ];
 
-let i = 0;
-function typeLine(text, cb){
-  let j = 0;
-  let interval = setInterval(()=>{
-    term.innerHTML += text[j++] || "";
-    if(j > text.length){
-      clearInterval(interval);
+let bi = 0;
+function type(text, cb){
+  let i = 0;
+  let t = setInterval(()=>{
+    term.innerHTML += text[i++] || "";
+    if(i > text.length){
+      clearInterval(t);
       term.innerHTML += "\n";
       cb && cb();
     }
-  }, 25);
+  }, 24);
 }
-
 (function next(){
-  if(i < lines.length){
-    typeLine(lines[i++], next);
-  }
+  if(bi < boot.length) type(boot[bi++], next);
 })();
 
 // =======================
-// ROBLOX SCRIPT (INLINE)
+// EMBEDDED LUA PAYLOAD
 // =======================
-const EMBEDDED_LUA = `
+const LUA_PAYLOAD = `
 if not game:IsLoaded() then
   game.Loaded:Wait()
 end
@@ -101,50 +110,58 @@ local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
 pcall(function()
-  game.StarterGui:SetCore("SendNotification", {
-    Title = "REDSHIFT",
-    Text = "Authorized",
-    Duration = 3
+  game.StarterGui:SetCore("SendNotification",{
+    Title="REDSHIFT",
+    Text="Injection complete",
+    Duration=3
   })
 end)
 
-print("REDSHIFT injected:", LP.Name)
+print("REDSHIFT active on", LP.Name)
 `;
 
 // =======================
-// LOADER GENERATOR
+// KEY GENERATION
 // =======================
-async function generate(){
-  const key = document.getElementById("key").value.trim();
-  term.innerHTML += "\\nVerifying key...\\n";
-
-  const res = await fetch(KEY_LIST_URL);
-  const text = await res.text();
-  if(!text.split("\\n").includes(key)){
-    term.innerHTML += "ACCESS DENIED\\n";
-    return;
+function randomKey(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let k = "REDSHIFT-";
+  for(let i=0;i<10;i++){
+    k += chars[Math.floor(Math.random()*chars.length)];
   }
+  return k;
+}
 
-  term.innerHTML += "KEY ACCEPTED\\n";
-  term.innerHTML += "Generating loader...\\n";
+// =======================
+// GENERATE LOADER
+// =======================
+function generate(){
+  const key = randomKey();
 
-  const loader = `
+  type("Generating key...", ()=>{
+    type("KEY: " + key, ()=>{
+      type("Building loader...", ()=>{
+        const loader = `
 -- REDSHIFT LOADER
 local HttpService = game:GetService("HttpService")
 local hwid = HttpService:GenerateGUID(false)
 
-local valid = game:HttpGet("${KEY_LIST_URL}")
-if not string.find(valid, "${key}") then
-  return
-end
+local USER_KEY = "${key}"
 
 loadstring([[
-${EMBEDDED_LUA}
+${LUA_PAYLOAD}
 ]])()
 `;
 
-  navigator.clipboard.writeText(loader);
-  term.innerHTML += "LOADER COPIED TO CLIPBOARD\\n";
+        navigator.clipboard.writeText(
+          "KEY:\\n" + key + "\\n\\nLOADER:\\n" + loader
+        );
+
+        type("Copied key + loader to clipboard.");
+        type("Paste loader into executor.");
+      });
+    });
+  });
 }
 </script>
 
